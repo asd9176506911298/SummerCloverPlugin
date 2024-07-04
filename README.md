@@ -1,11 +1,12 @@
 # SummerCloverPlugin
 
-## ¦w¸Ë
-¤U¸üzip¸ÑÀ£ÁY¨ì¹CÀ¸®Ú¥Ø¿ı ¦³SummerClover.exe ©M UnityCrashHandler64.exe
+## å®‰è£
+ä¸‹è¼‰zipè§£å£“ç¸®åˆ°éŠæˆ²æ ¹ç›®éŒ„ æœ‰SummerClover.exe å’Œ UnityCrashHandler64.exe
 
-## ¹Ï¤ù
+## åœ–ç‰‡
 ![](/img/sample.png)
 
-## BepinEx¸Ë¤£°_¨Ó°Ñ¦Ò:
-https://github.com/BepInEx/BepInEx/is...
+## BepinExè£ä¸èµ·ä¾†åƒè€ƒ:
+https://github.com/BepInEx/BepInEx/issues/774#issuecomment-1937897640
+
 https://hackmd.io/@ghorsington/rJuLdZTzK
