@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SummerCloverPlugin
 {
-    [BepInPlugin("SummerCloverPlugin", "夏色四葉草插件", "1.0.0")]
+    [BepInPlugin("SummerCloverPlugin", "夏色四葉草作弊選單 Made By Yuki.kaco", "1.0.0")]
     public class Plugin :BaseUnityPlugin
     {
         private ConfigEntry<KeyCode> ScriptMenuKey;
@@ -17,7 +17,7 @@ namespace SummerCloverPlugin
 
         private void Awake()
         {
-            Debug.Log("夏色四葉草插件");
+            Debug.Log("夏色四葉草插件 Made By Yuki.kaco");
             CustomVariableKey = Config.Bind<KeyCode>("DebugMenu", "CustomVariableToggleKey", KeyCode.F1, "測試自訂變數開啟快捷鍵/CustomVariableToggleKey");
             ScriptMenuKey = Config.Bind<KeyCode>("DebugMenu", "ScriptMenuToggleKey", KeyCode.F2, "測試腳本介面開啟快捷鍵/ScriptMenuToggleKey");
             DebugGUIKey = Config.Bind<KeyCode>("DebugMenu", "DebugGUIToggleKey", KeyCode.F3, "測試介面開啟快捷鍵/DebugGUIToggleKey");
@@ -48,7 +48,7 @@ namespace SummerCloverPlugin
             var traverse = Traverse.Create(typeof(CustomVariableGUI)).Field("windowRect");
             if (traverse.GetValue() is Rect currentRect)
             {
-                // Modify only the height
+                currentRect.width = 400f + (float)Screen.width * 0.1f;
                 currentRect.height = (float)Screen.height * 0.85f;
 
                 // Set the updated Rect back to the field
