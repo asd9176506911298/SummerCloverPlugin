@@ -29,7 +29,7 @@ namespace SummerCloverPlugin
 
         private void Awake()
         {
-            Debug.Log("夏色四葉草插件 Made By Yuki.kaco");
+            Debug.Log("Summer Clover Cheat Menu Made By Yuki.kaco");
             CustomVariableKey = Config.Bind<KeyCode>("DebugMenu", "CustomVariableToggleKey", KeyCode.F1, "測試自訂變數開啟快捷鍵/CustomVariableToggleKey");
             ScriptMenuKey = Config.Bind<KeyCode>("DebugMenu", "ScriptMenuToggleKey", KeyCode.F2, "測試腳本介面開啟快捷鍵/ScriptMenuToggleKey");
             DebugGUIKey = Config.Bind<KeyCode>("DebugMenu", "DebugGUIToggleKey", KeyCode.F3, "測試介面開啟快捷鍵/DebugGUIToggleKey");
@@ -198,7 +198,8 @@ namespace SummerCloverPlugin
             File.WriteAllText(filePath, logBuilder.ToString());
 
             // Optionally log the file path to the console
-            ShowToast($"LocalVariableMap saved to: {filePath}");
+            //ShowToast($"LocalVariableMap saved to: \n{filePath}");
+            ShowToast($"LocalVariableMap saved");
         }
 
         private void FindChangesInLocalVariableMap()
@@ -267,37 +268,65 @@ namespace SummerCloverPlugin
             File.WriteAllText(changesFilePath, changesBuilder.ToString());
 
             // Optionally log the file path to the console
-            ShowToast($"Changes written to: {changesFilePath}");
+            //ShowToast($"Changes written to: \n{changesFilePath}");
+            ShowToast($"Changes written");
         }
 
         private void ShowToast(string message)
         {
+            // Limit the toast message length to avoid excessive length
+            const int maxMessageLength = 5000; // Adjust based on your needs
             toastMessage += '\n' + message;
+
+            if (toastMessage.Length > maxMessageLength)
+            {
+                toastMessage = toastMessage.Substring(0, maxMessageLength);  // Truncate if necessary
+            }
+
             toastTimer = toastDuration;
         }
+
 
         private void OnGUI()
         {
             if (toastTimer > 0)
             {
-                // Calculate dynamic font size based on screen width/height
-                int fontSize = Mathf.Clamp(Screen.height / 20, 20, 30); // Adjust font size based on screen height
-
-                // Create GUIStyle
+                // Adjust the font size range (max font size set to 20 for smaller text)
+                int fontSize = Mathf.Clamp(Screen.height / 25, 15, 20); // Smaller range for font size
                 GUIStyle style = new GUIStyle(GUI.skin.label)
                 {
-                    fontSize = fontSize, // Set dynamic font size
-                    alignment = TextAnchor.LowerRight, // Align to bottom-right corner
-                    normal = { textColor = Color.white } // White text color
+                    fontSize = fontSize,
+                    alignment = TextAnchor.LowerRight,
+                    normal = { textColor = Color.white },
+                    wordWrap = true
                 };
 
-                // Define the Rect for the toast message
-                Rect rect = new Rect(0, 0, Screen.width, Screen.height);
+                GUIStyle backgroundStyle = new GUIStyle()
+                {
+                    normal = { background = MakeTexture(2, 2, new Color(0f, 0f, 0f, 0.3f)) }
+                };
 
-                // Display the toast message
+                // Position the toast message box at the bottom right
+                Rect rect = new Rect(Screen.width / 2, 0, Screen.width / 2, Screen.height - 40); // Adjust positioning and size
+                GUI.Box(rect, GUIContent.none, backgroundStyle);
                 GUI.Label(rect, toastMessage, style);
             }
         }
+
+        // Helper function to create a texture (for background)
+        private Texture2D MakeTexture(int width, int height, Color color)
+        {
+            Texture2D texture = new Texture2D(width, height);
+            Color[] pixels = new Color[width * height];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = color;
+            }
+            texture.SetPixels(pixels);
+            texture.Apply();
+            return texture;
+        }
+
 
         public void SetCustomVariableGUIRect()
         {
