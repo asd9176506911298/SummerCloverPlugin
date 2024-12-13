@@ -157,7 +157,8 @@ namespace SummerCloverPlugin
                 {
                     ShowToast($"{variable.Name} changed from {oldValue} to {variable.Value}");
                     changesBuilder.AppendLine($"{variable.Name} changed from {oldValue} to {variable.Value}");
-                    customVariableManager.SetVariableValue(variable.Name, oldValue);
+                    if(!oldValue.IsNullOrWhiteSpace())
+                        customVariableManager.SetVariableValue(variable.Name, oldValue);
                 }
             }
         }
