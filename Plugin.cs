@@ -7,7 +7,9 @@ using Naninovel.UI;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SummerCloverPlugin
 {
@@ -51,25 +53,106 @@ namespace SummerCloverPlugin
                 ConsoleCommands.ToggleDebugInfoGUI();
             }
 
-            if (Input.GetKeyDown(KeyCode.F4))
+            if (Input.GetKeyDown(KeyCode.Insert))
             {
                 SaveLocalVariableMap();
             }
 
-            if (Input.GetKeyDown(KeyCode.F5))
+            if (Input.GetKeyDown(KeyCode.Home))
             {
                 FindChangesInLocalVariableMap();
             }
 
+            if (Input.GetKeyDown(KeyCode.PageUp))
+            {
+                CompareAndToastChanges();
+            }
+
+            
             if (Input.GetKeyDown(KeyCode.F6))
             {
                 ShowToast(($"1234567890123456789012345678901234567890"));
             }
 
-            // Update the toast timer
             if (toastTimer > 0)
             {
                 toastTimer -= Time.deltaTime;
+            }
+            else
+            {
+                // Reset the toast message after the timer runs out
+                toastMessage = string.Empty;
+            }
+        }
+
+        private void CompareAndToastChanges()
+        {
+            // Attempt to get the instance of CustomVariableGUI
+            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
+            if (instance == null)
+            {
+                Debug.LogWarning("CustomVariableGUI instance is null.");
+                return;
+            }
+
+            // Attempt to get the variableManager field
+            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
+            if (CustomVariableManager == null)
+            {
+                Debug.LogWarning("CustomVariableManager is null.");
+                return;
+            }
+
+            // Use GetAllVariables to get the variables
+            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            if (allVariables == null)
+            {
+                Debug.LogWarning("All variables collection is null.");
+                return;
+            }
+
+            // Define the file path
+            string filePath = Path.Combine(Paths.ConfigPath, "LocalVariableMap.txt");
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning("LocalVariableMap.txt does not exist. Please save the map first using F4.");
+                return;
+            }
+
+            // Read the saved LocalVariableMap from the file
+            var savedLocalVariableMap = new Dictionary<string, string>();
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var parts = line.Split(new[] { ':' }, 2);
+                if (parts.Length == 2)
+                {
+                    savedLocalVariableMap[parts[0].Trim()] = parts[1].Trim();
+                }
+            }
+
+            // Regular expression pattern to match "xxxInfo{num}" (e.g., KasumiInfo1, AyanoInfo2)
+            string pattern = @"\w+Info\d";
+
+            // Compare savedLocalVariableMap with the current variables
+            StringBuilder changesBuilder = new StringBuilder();
+            changesBuilder.AppendLine("Changes in LocalVariableMap:");
+
+            ICustomVariableManager service = Engine.GetService<ICustomVariableManager>();
+
+            foreach (var variable in allVariables)
+            {
+                // Skip variables that match the pattern "xxxInfo{num}"
+                if (Regex.IsMatch(variable.Name, pattern))
+                {
+                    continue; // Skip these variables
+                }
+
+                if (!savedLocalVariableMap.TryGetValue(variable.Name, out var oldValue) || variable.Value != oldValue)
+                {
+                    ShowToast($"{variable.Name} changed from {oldValue} to {variable.Value}");
+                    changesBuilder.AppendLine($"{variable.Name} changed from {oldValue} to {variable.Value}");
+                    service.SetVariableValue(variable.Name, oldValue);
+                }
             }
         }
 
@@ -91,11 +174,11 @@ namespace SummerCloverPlugin
                 return;
             }
 
-            // Attempt to get the localVariableMap field
-            var localVariableMap = Traverse.Create(CustomVariableManager).Field("localVariableMap").GetValue<SerializableLiteralStringMap>();
-            if (localVariableMap == null)
+            // Use GetAllVariables to get the variables
+            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            if (allVariables == null)
             {
-                Debug.LogWarning("localVariableMap is null.");
+                Debug.LogWarning("All variables collection is null.");
                 return;
             }
 
@@ -105,13 +188,12 @@ namespace SummerCloverPlugin
             // Use a StringBuilder for efficient concatenation
             var logBuilder = new StringBuilder();
 
-            // Save the current state of the map
-            previousLocalVariableMap = new Dictionary<string, string>(localVariableMap);
-
-            // Log each key-value pair in the dictionary
-            foreach (var x in localVariableMap)
+            // Save the current state of the variables
+            previousLocalVariableMap.Clear();
+            foreach (var variable in allVariables)
             {
-                logBuilder.AppendLine($"{x.Key}: {x.Value}");
+                previousLocalVariableMap[variable.Name] = variable.Value;
+                logBuilder.AppendLine($"{variable.Name}: {variable.Value}");
             }
 
             // Write the log to a file
@@ -139,11 +221,11 @@ namespace SummerCloverPlugin
                 return;
             }
 
-            // Attempt to get the localVariableMap field
-            var localVariableMap = Traverse.Create(CustomVariableManager).Field("localVariableMap").GetValue<SerializableLiteralStringMap>();
-            if (localVariableMap == null)
+            // Use GetAllVariables to get the variables
+            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            if (allVariables == null)
             {
-                Debug.LogWarning("localVariableMap is null.");
+                Debug.LogWarning("All variables collection is null.");
                 return;
             }
 
@@ -166,19 +248,27 @@ namespace SummerCloverPlugin
                 }
             }
 
-            // Compare savedLocalVariableMap with the current localVariableMap
+            // Regular expression pattern to match "xxxInfo{num}" (e.g., KasumiInfo1, AyanoInfo2)
+            string pattern = @"\w+Info\d";
+
+            // Compare savedLocalVariableMap with the current variables
             var changesBuilder = new StringBuilder();
             changesBuilder.AppendLine("Changes in LocalVariableMap:");
 
-            foreach (var kvp in localVariableMap)
+            foreach (var variable in allVariables)
             {
-                if (!savedLocalVariableMap.TryGetValue(kvp.Key, out var oldValue) || kvp.Value != oldValue)
+                // Skip variables that match the pattern "xxxInfo{num}"
+                if (Regex.IsMatch(variable.Name, pattern))
                 {
-                    ShowToast($"{kvp.Key}");
+                    continue; // Skip these variables
+                }
+
+                if (!savedLocalVariableMap.TryGetValue(variable.Name, out var oldValue) || variable.Value != oldValue)
+                {
+                    ShowToast($"{variable.Name} changed from {oldValue} to {variable.Value}");
+                    changesBuilder.AppendLine($"{variable.Name} changed from {oldValue} to {variable.Value}");
                 }
             }
-
-
 
             // Define the changes file path
             string changesFilePath = Path.Combine(Paths.ConfigPath, "LocalVariableMap_Changes.txt");
@@ -189,6 +279,7 @@ namespace SummerCloverPlugin
             // Optionally log the file path to the console
             ShowToast($"Changes written to: {changesFilePath}");
         }
+
 
         private void ShowToast(string message)
         {
