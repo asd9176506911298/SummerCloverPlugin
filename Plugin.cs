@@ -9,12 +9,11 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SummerCloverPlugin
 {
-    [BepInPlugin("SummerCloverPlugin", "夏色四葉草作弊選單 Made By Yuki.kaco", "1.0.0")]
-    public class Plugin :BaseUnityPlugin
+    [BepInPlugin("SummerCloverPlugin", "Summer Clover Cheat Menu Made By Yuki.kaco", "1.0.0")]
+    public class Plugin : BaseUnityPlugin
     {
         private ConfigEntry<KeyCode> ScriptMenuKey;
         private ConfigEntry<KeyCode> CustomVariableKey;
@@ -26,6 +25,7 @@ namespace SummerCloverPlugin
 
         private Dictionary<string, string> previousLocalVariableMap = new Dictionary<string, string>();
 
+        private ICustomVariableManager customVariableManager;
 
         private void Awake()
         {
@@ -33,10 +33,27 @@ namespace SummerCloverPlugin
             CustomVariableKey = Config.Bind<KeyCode>("DebugMenu", "CustomVariableToggleKey", KeyCode.F1, "測試自訂變數開啟快捷鍵/CustomVariableToggleKey");
             ScriptMenuKey = Config.Bind<KeyCode>("DebugMenu", "ScriptMenuToggleKey", KeyCode.F2, "測試腳本介面開啟快捷鍵/ScriptMenuToggleKey");
             DebugGUIKey = Config.Bind<KeyCode>("DebugMenu", "DebugGUIToggleKey", KeyCode.F3, "測試介面開啟快捷鍵/DebugGUIToggleKey");
+
+            // Initialize ICustomVariableManager here to avoid repetitive calls
+            InitializeCustomVariableManager();
+        }
+
+        private void InitializeCustomVariableManager()
+        {
+            if (customVariableManager == null)
+            {
+                customVariableManager = Engine.GetService<ICustomVariableManager>();
+                if (customVariableManager == null)
+                {
+                    Debug.LogWarning("ICustomVariableManager service is still null after initialization.");
+                }
+            }
         }
 
         private void Update()
         {
+            InitializeCustomVariableManager();  // Ensure customVariableManager is initialized on each update
+
             if (Input.GetKeyDown(ScriptMenuKey.Value))
             {
                 ConsoleCommands.ToggleScriptNavigator();
@@ -68,10 +85,9 @@ namespace SummerCloverPlugin
                 CompareAndToastChanges();
             }
 
-            
             if (Input.GetKeyDown(KeyCode.F6))
             {
-                ShowToast(($"1234567890123456789012345678901234567890"));
+                ShowToast("1234567890123456789012345678901234567890");
             }
 
             if (toastTimer > 0)
@@ -87,24 +103,16 @@ namespace SummerCloverPlugin
 
         private void CompareAndToastChanges()
         {
-            // Attempt to get the instance of CustomVariableGUI
-            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
-            if (instance == null)
+            InitializeCustomVariableManager();  // Ensure customVariableManager is initialized before usage
+
+            // Check if customVariableManager is still null
+            if (customVariableManager == null)
             {
-                Debug.LogWarning("CustomVariableGUI instance is null.");
+                Debug.LogWarning("ICustomVariableManager is not initialized.");
                 return;
             }
 
-            // Attempt to get the variableManager field
-            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
-            if (CustomVariableManager == null)
-            {
-                Debug.LogWarning("CustomVariableManager is null.");
-                return;
-            }
-
-            // Use GetAllVariables to get the variables
-            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            IReadOnlyCollection<CustomVariable> allVariables = customVariableManager.GetAllVariables();
             if (allVariables == null)
             {
                 Debug.LogWarning("All variables collection is null.");
@@ -137,8 +145,6 @@ namespace SummerCloverPlugin
             StringBuilder changesBuilder = new StringBuilder();
             changesBuilder.AppendLine("Changes in LocalVariableMap:");
 
-            ICustomVariableManager service = Engine.GetService<ICustomVariableManager>();
-
             foreach (var variable in allVariables)
             {
                 // Skip variables that match the pattern "xxxInfo{num}"
@@ -151,31 +157,23 @@ namespace SummerCloverPlugin
                 {
                     ShowToast($"{variable.Name} changed from {oldValue} to {variable.Value}");
                     changesBuilder.AppendLine($"{variable.Name} changed from {oldValue} to {variable.Value}");
-                    service.SetVariableValue(variable.Name, oldValue);
+                    customVariableManager.SetVariableValue(variable.Name, oldValue);
                 }
             }
         }
 
         private void SaveLocalVariableMap()
         {
-            // Attempt to get the instance of CustomVariableGUI
-            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
-            if (instance == null)
+            InitializeCustomVariableManager();  // Ensure customVariableManager is initialized before usage
+
+            // Check if customVariableManager is null
+            if (customVariableManager == null)
             {
-                Debug.LogWarning("CustomVariableGUI instance is null.");
+                Debug.LogWarning("ICustomVariableManager is not initialized.");
                 return;
             }
 
-            // Attempt to get the variableManager field
-            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
-            if (CustomVariableManager == null)
-            {
-                Debug.LogWarning("CustomVariableManager is null.");
-                return;
-            }
-
-            // Use GetAllVariables to get the variables
-            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            IReadOnlyCollection<CustomVariable> allVariables = customVariableManager.GetAllVariables();
             if (allVariables == null)
             {
                 Debug.LogWarning("All variables collection is null.");
@@ -205,24 +203,16 @@ namespace SummerCloverPlugin
 
         private void FindChangesInLocalVariableMap()
         {
-            // Attempt to get the instance of CustomVariableGUI
-            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
-            if (instance == null)
+            InitializeCustomVariableManager();  // Ensure customVariableManager is initialized before usage
+
+            // Check if customVariableManager is null
+            if (customVariableManager == null)
             {
-                Debug.LogWarning("CustomVariableGUI instance is null.");
+                Debug.LogWarning("ICustomVariableManager is not initialized.");
                 return;
             }
 
-            // Attempt to get the variableManager field
-            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
-            if (CustomVariableManager == null)
-            {
-                Debug.LogWarning("CustomVariableManager is null.");
-                return;
-            }
-
-            // Use GetAllVariables to get the variables
-            IReadOnlyCollection<CustomVariable> allVariables = CustomVariableManager.GetAllVariables();
+            IReadOnlyCollection<CustomVariable> allVariables = customVariableManager.GetAllVariables();
             if (allVariables == null)
             {
                 Debug.LogWarning("All variables collection is null.");
@@ -280,7 +270,6 @@ namespace SummerCloverPlugin
             ShowToast($"Changes written to: {changesFilePath}");
         }
 
-
         private void ShowToast(string message)
         {
             toastMessage += '\n' + message;
@@ -303,16 +292,12 @@ namespace SummerCloverPlugin
                 };
 
                 // Define the Rect for the toast message
-                
-                Rect rect = new Rect(
-                    0,0,Screen.width,Screen.height
-                );
+                Rect rect = new Rect(0, 0, Screen.width, Screen.height);
 
                 // Display the toast message
                 GUI.Label(rect, toastMessage, style);
             }
         }
-
 
         public void SetCustomVariableGUIRect()
         {
