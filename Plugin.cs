@@ -4,6 +4,9 @@ using BepInEx.Unity.Mono;
 using HarmonyLib;
 using Naninovel;
 using Naninovel.UI;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace SummerCloverPlugin
@@ -14,6 +17,13 @@ namespace SummerCloverPlugin
         private ConfigEntry<KeyCode> ScriptMenuKey;
         private ConfigEntry<KeyCode> CustomVariableKey;
         private ConfigEntry<KeyCode> DebugGUIKey;
+
+        private string toastMessage = "55555555555";
+        private float toastDuration = 2f; // Duration to show the toast
+        private float toastTimer = 0f;
+
+        private Dictionary<string, string> previousLocalVariableMap = new Dictionary<string, string>();
+
 
         private void Awake()
         {
@@ -40,7 +50,178 @@ namespace SummerCloverPlugin
             {
                 ConsoleCommands.ToggleDebugInfoGUI();
             }
+
+            if (Input.GetKeyDown(KeyCode.F4))
+            {
+                SaveLocalVariableMap();
+            }
+
+            if (Input.GetKeyDown(KeyCode.F5))
+            {
+                FindChangesInLocalVariableMap();
+            }
+
+            if (Input.GetKeyDown(KeyCode.F6))
+            {
+                ShowToast(($"1234567890123456789012345678901234567890"));
+            }
+
+            // Update the toast timer
+            if (toastTimer > 0)
+            {
+                toastTimer -= Time.deltaTime;
+            }
         }
+
+        private void SaveLocalVariableMap()
+        {
+            // Attempt to get the instance of CustomVariableGUI
+            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
+            if (instance == null)
+            {
+                Debug.LogWarning("CustomVariableGUI instance is null.");
+                return;
+            }
+
+            // Attempt to get the variableManager field
+            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
+            if (CustomVariableManager == null)
+            {
+                Debug.LogWarning("CustomVariableManager is null.");
+                return;
+            }
+
+            // Attempt to get the localVariableMap field
+            var localVariableMap = Traverse.Create(CustomVariableManager).Field("localVariableMap").GetValue<SerializableLiteralStringMap>();
+            if (localVariableMap == null)
+            {
+                Debug.LogWarning("localVariableMap is null.");
+                return;
+            }
+
+            // Define the file path
+            string filePath = Path.Combine(Paths.ConfigPath, "LocalVariableMap.txt");
+
+            // Use a StringBuilder for efficient concatenation
+            var logBuilder = new StringBuilder();
+
+            // Save the current state of the map
+            previousLocalVariableMap = new Dictionary<string, string>(localVariableMap);
+
+            // Log each key-value pair in the dictionary
+            foreach (var x in localVariableMap)
+            {
+                logBuilder.AppendLine($"{x.Key}: {x.Value}");
+            }
+
+            // Write the log to a file
+            File.WriteAllText(filePath, logBuilder.ToString());
+
+            // Optionally log the file path to the console
+            ShowToast($"LocalVariableMap saved to: {filePath}");
+        }
+
+        private void FindChangesInLocalVariableMap()
+        {
+            // Attempt to get the instance of CustomVariableGUI
+            var instance = Traverse.Create(typeof(CustomVariableGUI)).Field("instance").GetValue<CustomVariableGUI>();
+            if (instance == null)
+            {
+                Debug.LogWarning("CustomVariableGUI instance is null.");
+                return;
+            }
+
+            // Attempt to get the variableManager field
+            var CustomVariableManager = Traverse.Create(instance).Field("variableManager").GetValue<ICustomVariableManager>();
+            if (CustomVariableManager == null)
+            {
+                Debug.LogWarning("CustomVariableManager is null.");
+                return;
+            }
+
+            // Attempt to get the localVariableMap field
+            var localVariableMap = Traverse.Create(CustomVariableManager).Field("localVariableMap").GetValue<SerializableLiteralStringMap>();
+            if (localVariableMap == null)
+            {
+                Debug.LogWarning("localVariableMap is null.");
+                return;
+            }
+
+            // Define the file path
+            string filePath = Path.Combine(Paths.ConfigPath, "LocalVariableMap.txt");
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning("LocalVariableMap.txt does not exist. Please save the map first using F4.");
+                return;
+            }
+
+            // Read the saved LocalVariableMap from the file
+            var savedLocalVariableMap = new Dictionary<string, string>();
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var parts = line.Split(new[] { ':' }, 2);
+                if (parts.Length == 2)
+                {
+                    savedLocalVariableMap[parts[0].Trim()] = parts[1].Trim();
+                }
+            }
+
+            // Compare savedLocalVariableMap with the current localVariableMap
+            var changesBuilder = new StringBuilder();
+            changesBuilder.AppendLine("Changes in LocalVariableMap:");
+
+            foreach (var kvp in localVariableMap)
+            {
+                if (!savedLocalVariableMap.TryGetValue(kvp.Key, out var oldValue) || kvp.Value != oldValue)
+                {
+                    ShowToast($"{kvp.Key}");
+                }
+            }
+
+
+
+            // Define the changes file path
+            string changesFilePath = Path.Combine(Paths.ConfigPath, "LocalVariableMap_Changes.txt");
+
+            // Write the changes to a file
+            File.WriteAllText(changesFilePath, changesBuilder.ToString());
+
+            // Optionally log the file path to the console
+            ShowToast($"Changes written to: {changesFilePath}");
+        }
+
+        private void ShowToast(string message)
+        {
+            toastMessage += '\n' + message;
+            toastTimer = toastDuration;
+        }
+
+        private void OnGUI()
+        {
+            if (toastTimer > 0)
+            {
+                // Calculate dynamic font size based on screen width/height
+                int fontSize = Mathf.Clamp(Screen.height / 20, 20, 30); // Adjust font size based on screen height
+
+                // Create GUIStyle
+                GUIStyle style = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = fontSize, // Set dynamic font size
+                    alignment = TextAnchor.LowerRight, // Align to bottom-right corner
+                    normal = { textColor = Color.white } // White text color
+                };
+
+                // Define the Rect for the toast message
+                
+                Rect rect = new Rect(
+                    0,0,Screen.width,Screen.height
+                );
+
+                // Display the toast message
+                GUI.Label(rect, toastMessage, style);
+            }
+        }
+
 
         public void SetCustomVariableGUIRect()
         {
@@ -48,7 +229,7 @@ namespace SummerCloverPlugin
             var traverse = Traverse.Create(typeof(CustomVariableGUI)).Field("windowRect");
             if (traverse.GetValue() is Rect currentRect)
             {
-                currentRect.width = 400f + (float)Screen.width * 0.1f;
+                currentRect.width = 400f + (float)Screen.width * 0.15f;
                 currentRect.height = (float)Screen.height * 0.85f;
 
                 // Set the updated Rect back to the field
