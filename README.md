@@ -43,6 +43,19 @@
 
 ---
 
+## Images / 圖片
+
+### F1 Variable Menu  
+![F1 Variable Menu](/img/F1.png)  
+
+### F2 Script Menu  
+![F2 Script Menu](/img/F2.png)  
+
+### F3 Debug Info Menu  
+![F3 Debug Info Menu](/img/F3.png)  
+
+---
+
 ## Known Issues / 已知問題
 - **[F2] Script Menu:** Jumping to certain scripts may cause issues, but it works for HCG scenes.  
   **[F2] 腳本選單：** 前往某些腳本可能會有問題，但適用於 HCG 場景。  
@@ -78,16 +91,3 @@ For example, for Unity version **2020.3.48**:
 For more information, refer to these resources:  
 - [BepInEx GitHub Issue #774 - Comment](https://github.com/BepInEx/BepInEx/issues/774#issuecomment-1937897640)  
 - [HackMD Guide for Stripped Assemblies](https://hackmd.io/@ghorsington/rJuLdZTzK)  
-
----
-
-## Images / 圖片
-
-### F1 Variable Menu  
-![F1 Variable Menu](/img/F1.png)  
-
-### F2 Script Menu  
-![F2 Script Menu](/img/F2.png)  
-
-### F3 Debug Info Menu  
-![F3 Debug Info Menu](/img/F3.png)  
