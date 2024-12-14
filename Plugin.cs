@@ -18,6 +18,9 @@ namespace SummerCloverPlugin
         private ConfigEntry<KeyCode> ScriptMenuKey;
         private ConfigEntry<KeyCode> CustomVariableKey;
         private ConfigEntry<KeyCode> DebugGUIKey;
+        private ConfigEntry<KeyCode> SaveLocalVariableKey;
+        private ConfigEntry<KeyCode> FindChangesKey;
+        private ConfigEntry<KeyCode> CompareAndModifyKey;
 
         private string toastMessage = "55555555555";
         private float toastDuration = 2f; // Duration to show the toast
@@ -30,9 +33,12 @@ namespace SummerCloverPlugin
         private void Awake()
         {
             Debug.Log("Summer Clover Cheat Menu Made By Yuki.kaco");
-            CustomVariableKey = Config.Bind<KeyCode>("DebugMenu", "CustomVariableToggleKey", KeyCode.F1, "測試自訂變數開啟快捷鍵/CustomVariableToggleKey");
-            ScriptMenuKey = Config.Bind<KeyCode>("DebugMenu", "ScriptMenuToggleKey", KeyCode.F2, "測試腳本介面開啟快捷鍵/ScriptMenuToggleKey");
-            DebugGUIKey = Config.Bind<KeyCode>("DebugMenu", "DebugGUIToggleKey", KeyCode.F3, "測試介面開啟快捷鍵/DebugGUIToggleKey");
+            CustomVariableKey = Config.Bind<KeyCode>("DebugMenu", "CustomVariableToggleKey", KeyCode.F1, "測試自訂變數開啟快捷鍵 / CustomVariableToggleKey");
+            ScriptMenuKey = Config.Bind<KeyCode>("DebugMenu", "ScriptMenuToggleKey", KeyCode.F2, "測試腳本介面開啟快捷鍵 / ScriptMenuToggleKey");
+            DebugGUIKey = Config.Bind<KeyCode>("DebugMenu", "DebugGUIToggleKey", KeyCode.F3, "測試介面開啟快捷鍵 / DebugGUIToggleKey");
+            SaveLocalVariableKey = Config.Bind<KeyCode>("DebugMenu", "SaveLocalVariableKey", KeyCode.Insert, "儲存當前變數快捷鍵 / SaveLocalVariableHotKey");
+            FindChangesKey = Config.Bind<KeyCode>("DebugMenu", "FindChangesKey", KeyCode.Home, "比較變數變化快捷鍵 / CmpVariableChangeHotKey");
+            CompareAndModifyKey = Config.Bind<KeyCode>("DebugMenu", "CompareAndModifyKey", KeyCode.PageUp, "修改變數快捷鍵 / ModifyVariableHotKey");
 
             // Initialize ICustomVariableManager here to avoid repetitive calls
             InitializeCustomVariableManager();
@@ -70,25 +76,27 @@ namespace SummerCloverPlugin
                 ConsoleCommands.ToggleDebugInfoGUI();
             }
 
-            if (Input.GetKeyDown(KeyCode.Insert))
+            if (Input.GetKeyDown(SaveLocalVariableKey.Value))
             {
                 SaveLocalVariableMap();
             }
 
-            if (Input.GetKeyDown(KeyCode.Home))
+            if (Input.GetKeyDown(FindChangesKey.Value))
             {
                 FindChangesInLocalVariableMap();
             }
 
-            if (Input.GetKeyDown(KeyCode.PageUp))
+            if (Input.GetKeyDown(CompareAndModifyKey.Value))
             {
-                CompareAndToastChanges();
+                CompareAndModify();
             }
 
+#if DEBUG
             if (Input.GetKeyDown(KeyCode.F6))
             {
                 ShowToast("1234567890123456789012345678901234567890");
             }
+#endif
 
             if (toastTimer > 0)
             {
@@ -101,7 +109,7 @@ namespace SummerCloverPlugin
             }
         }
 
-        private void CompareAndToastChanges()
+        private void CompareAndModify()
         {
             InitializeCustomVariableManager();  // Ensure customVariableManager is initialized before usage
 
