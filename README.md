@@ -3,7 +3,7 @@
 ## Install / 安裝
 - **Download** the zip file and extract it to the game's root folder (where `SummerClover.exe` and `UnityCrashHandler64.exe` are located).  
 - **下載** zip 文件，並解壓縮到遊戲根目錄（包含 `SummerClover.exe` 和 `UnityCrashHandler64.exe` 的文件夾）。  
-
+![bepinex](/img/bepinex.png)  
 ---
 
 ## Features / 功能
