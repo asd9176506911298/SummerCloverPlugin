@@ -30,6 +30,13 @@
 
 ---
 
+# Known Issue / 已知問題
+
+- F2 Goto any script seem have some problem
+but you can use for HCG
+
+---
+
 ## Images / 圖片
 
 ### F1 Variable Menu
