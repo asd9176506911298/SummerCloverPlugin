@@ -1,6 +1,15 @@
 # Summer Clover Cheat Menu
 
-## Install / 安裝
+## BepinEx or Cheat Enging
+- BepinEx Mod have more powerful Cheat Enging Table only open GUI don't have compare txt feature  
+- BepinEx Mod 更強大 Cheat Enging Table 只有打開介面沒有比較文字檔功能  
+ ![CE](/img/CE.png)  
+
+## Cheat Enging Usage/使用
+- Download Cheat Engine open Summer Clover.CT and Click Cheat Initialize can use
+- 下載 Cheat Engine 開啟 SummerClover.CT 然後點Cheat Initalize就能使用
+
+## BenpinEx Install / 安裝
 - **Download** the zip file and extract it to the game's root folder (where `SummerClover.exe` and `UnityCrashHandler64.exe` are located).  
 - **下載** zip 文件，並解壓縮到遊戲根目錄（包含 `SummerClover.exe` 和 `UnityCrashHandler64.exe` 的文件夾）。  
 ![bepinex](/img/bepinex.png)  
