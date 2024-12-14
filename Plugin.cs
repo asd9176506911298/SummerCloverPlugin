@@ -15,8 +15,8 @@ namespace SummerCloverPlugin
     [BepInPlugin("SummerCloverPlugin", "Summer Clover Cheat Menu Made By Yuki.kaco", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
-        private ConfigEntry<KeyCode> ScriptMenuKey;
         private ConfigEntry<KeyCode> CustomVariableKey;
+        private ConfigEntry<KeyCode> ScriptMenuKey;
         private ConfigEntry<KeyCode> DebugGUIKey;
         private ConfigEntry<KeyCode> SaveLocalVariableKey;
         private ConfigEntry<KeyCode> FindChangesKey;
@@ -60,15 +60,15 @@ namespace SummerCloverPlugin
         {
             InitializeCustomVariableManager();  // Ensure customVariableManager is initialized on each update
 
-            if (Input.GetKeyDown(ScriptMenuKey.Value))
-            {
-                ConsoleCommands.ToggleScriptNavigator();
-            }
-
             if (Input.GetKeyDown(CustomVariableKey.Value))
             {
                 SetCustomVariableGUIRect();
                 ConsoleCommands.ToggleCustomVariableGUI();
+            }
+
+            if (Input.GetKeyDown(ScriptMenuKey.Value))
+            {
+                ConsoleCommands.ToggleScriptNavigator();
             }
 
             if (Input.GetKeyDown(DebugGUIKey.Value))
