@@ -21,6 +21,18 @@
   **[PageUp]** 設定 `LocalVariableMap.txt` 當作遊戲的變數  
 
 ---
+
+## Suggest Minimal Modify / 建議最小化修改
+- PlayerEventAction  行動/Action
+- PlayerAp  體力/Energy
+- PlayerSex  性慾/Desire
+- NewPressure  壓力/Stress
+- PlayerMoney  金錢/Money
+- PlayerSystem 點數/Point
+- Modify these would more safe prevent broken game or save prevent cause unexpected problem  
+- 修改這些比較不會破壞遊戲或存檔導致非預期問題
+
+---
 # Change HotKey / 修改熱鍵
 
 - You can modify the hotkeys by editing the configuration file:  
@@ -33,7 +45,11 @@
 # Known Issue / 已知問題
 
 - F2 Goto any script seem have some problem
-but you can use for HCG
+but you can use for HCG  
+F2 前往任意腳本似乎會有一些問題 但是你可以用來前往HCG  
+
+- When you **[Page]** maybe will cause unexpected problem remember backup your save  
+當你 **[Page]** 可能會導致未預期的問題 記得備份存檔  
 
 ---
 
