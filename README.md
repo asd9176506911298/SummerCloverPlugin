@@ -1,8 +1,8 @@
 # Summer Clover Cheat Menu
 
 ## BepinEx or Cheat Engine
-- BepinEx Mod have more powerful feature Cheat Enging Table only open GUI don't have compare txt feature  
-- BepinEx Mod 更強大 Cheat Enging Table 只有打開介面沒有比較文字檔功能  
+- BepinEx Mod have more powerful feature Cheat Engine Table only open GUI don't have compare txt feature  
+- BepinEx Mod 更強大 Cheat Engine Table 只有打開介面沒有比較文字檔功能  
  ![CE](/img/CE.png)  
 
 ## Cheat Enging Usage/使用
