@@ -64,6 +64,9 @@
 ![F3 Debug Info Menu](/img/F3.png)  
 
 ---
+## Video
+- https://youtu.be/A0L5HUf6ZHo
+---
 
 ## Known Issues / 已知問題
 - **[F2] Script Menu:** Jumping to certain scripts may cause issues, but it works for HCG scenes.  
